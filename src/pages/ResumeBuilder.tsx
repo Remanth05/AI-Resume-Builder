@@ -665,12 +665,12 @@ export default function ResumeBuilder() {
             <div className="bg-white border border-gray-300 shadow-lg p-8 resume-preview">
               <div className="text-center mb-6">
                 <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                  {resumeData.sections[0]?.content.fullName || 'Your Name'}
+                  {(resumeData.sections || [])[0]?.content.fullName || 'Your Name'}
                 </h1>
                 <div className="text-sm text-gray-600 space-y-1">
-                  <p>{resumeData.sections[0]?.content.email} • {resumeData.sections[0]?.content.phone}</p>
-                  <p>{resumeData.sections[0]?.content.location}</p>
-                  <p>{resumeData.sections[0]?.content.linkedin} • {resumeData.sections[0]?.content.website}</p>
+                  <p>{(resumeData.sections || [])[0]?.content.email} • {(resumeData.sections || [])[0]?.content.phone}</p>
+                  <p>{(resumeData.sections || [])[0]?.content.location}</p>
+                  <p>{(resumeData.sections || [])[0]?.content.linkedin} • {(resumeData.sections || [])[0]?.content.website}</p>
                 </div>
               </div>
 
