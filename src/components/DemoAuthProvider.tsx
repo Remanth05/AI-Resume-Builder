@@ -39,10 +39,13 @@ export function DemoAuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signOut = () => {
+    console.log('Sign out started')
     setUser(null)
     setIsSignedIn(false)
+    console.log('State updated, navigating to home')
     // Navigate to landing page using React Router
     navigate('/', { replace: true })
+    console.log('Navigation called')
   }
 
   return (
