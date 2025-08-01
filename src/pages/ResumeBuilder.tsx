@@ -477,7 +477,7 @@ export default function ResumeBuilder() {
                   className="border border-gray-200 rounded-lg p-4 hover:border-blue-500 hover:shadow-lg cursor-pointer transition-all duration-200 transform hover:scale-105"
                 >
                   <div className={`w-full h-32 bg-gradient-to-br from-${template.color}-100 to-${template.color}-200 rounded-lg mb-4 flex items-center justify-center`}>
-                    <Template className={`h-12 w-12 text-${template.color}-600`} />
+                    <Layout className={`h-12 w-12 text-${template.color}-600`} />
                   </div>
                   <h3 className="font-semibold text-gray-900 mb-2">{template.name}</h3>
                   <p className="text-sm text-gray-600 mb-3">{template.description}</p>
