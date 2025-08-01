@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
 import { resumeAPI, showToast } from '../utils/api'
+import { downloadResumeAsPDF } from '../utils/pdfGenerator'
 import { 
   Save, 
   Download, 
@@ -39,6 +40,7 @@ export default function ResumeBuilder() {
   const [loading, setLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [isDownloading, setIsDownloading] = useState(false)
 
   useEffect(() => {
     // TODO: Load resume data from API if id exists, otherwise create new
@@ -147,6 +149,46 @@ export default function ResumeBuilder() {
       }
     } finally {
       setIsSaving(false)
+    }
+  }
+
+  // Download function
+  const handleDownload = async () => {
+    if (!resumeData) return
+
+    try {
+      setIsDownloading(true)
+
+      // First check if preview is shown, if not, temporarily show it
+      const wasPreviewShown = showPreview
+      if (!showPreview) {
+        setShowPreview(true)
+        // Wait a moment for the preview to render
+        await new Promise(resolve => setTimeout(resolve, 500))
+      }
+
+      // Find the preview element
+      const previewElement = document.querySelector('.resume-preview') as HTMLElement
+      if (!previewElement) {
+        throw new Error('Preview not available for download')
+      }
+
+      // Generate filename
+      const filename = `${resumeData.title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`
+
+      // Download as PDF
+      await downloadResumeAsPDF(previewElement, filename)
+
+      // Restore preview state
+      if (!wasPreviewShown) {
+        setShowPreview(false)
+      }
+
+    } catch (error) {
+      console.error('Failed to download resume:', error)
+      showToast('Failed to download resume. Please try again.', 'error')
+    } finally {
+      setIsDownloading(false)
     }
   }
 
@@ -306,9 +348,13 @@ export default function ResumeBuilder() {
             <Share2 className="h-5 w-5 mr-2" />
             Share
           </button>
-          <button className="btn-secondary">
+          <button
+            onClick={handleDownload}
+            disabled={isDownloading}
+            className="btn-secondary disabled:opacity-50"
+          >
             <Download className="h-5 w-5 mr-2" />
-            Download
+            {isDownloading ? 'Generating PDF...' : 'Download'}
           </button>
           <button
             onClick={() => handleSave()}
