@@ -16,7 +16,7 @@ interface DemoAuthContextType {
   signOut: () => void
 }
 
-const DemoAuthContext = createContext<DemoAuthContextType | null>(null)
+const DemoAuthContext = React.createContext<DemoAuthContextType | null>(null)
 
 const demoUser: User = {
   id: 'demo_user_123',
