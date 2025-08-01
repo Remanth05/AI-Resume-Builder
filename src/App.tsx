@@ -58,12 +58,12 @@ function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       
-      {/* Show SignIn page when signed out and not on landing page */}
+      {/* Redirect signed-out users from protected routes */}
       <AuthSignedOut>
         <Routes>
-          <Route path="/dashboard" element={<Navigate to="/sign-in" replace />} />
-          <Route path="/resume/*" element={<Navigate to="/sign-in" replace />} />
-          <Route path="/profile" element={<Navigate to="/sign-in" replace />} />
+          <Route path="/dashboard" element={<Navigate to="/" replace />} />
+          <Route path="/resume/*" element={<Navigate to="/" replace />} />
+          <Route path="/profile" element={<Navigate to="/" replace />} />
         </Routes>
       </AuthSignedOut>
     </div>
