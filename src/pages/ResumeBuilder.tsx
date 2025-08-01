@@ -107,6 +107,42 @@ export default function ResumeBuilder() {
     }, 500)
   }, [id])
 
+  // Helper function to update section content
+  const updateSectionContent = (sectionId: string, field: string, value: string) => {
+    if (!resumeData) return
+
+    setResumeData({
+      ...resumeData,
+      sections: resumeData.sections.map(section =>
+        section.id === sectionId
+          ? { ...section, content: { ...section.content, [field]: value } }
+          : section
+      )
+    })
+  }
+
+  // Helper function to update experience fields
+  const updateExperienceField = (sectionId: string, expIndex: number, field: string, value: string) => {
+    if (!resumeData) return
+
+    setResumeData({
+      ...resumeData,
+      sections: resumeData.sections.map(section =>
+        section.id === sectionId
+          ? {
+              ...section,
+              content: {
+                ...section.content,
+                experiences: section.content.experiences.map((exp: any, index: number) =>
+                  index === expIndex ? { ...exp, [field]: value } : exp
+                )
+              }
+            }
+          : section
+      )
+    })
+  }
+
   const generateAIContent = async (sectionType: string, userInput: string) => {
     setIsGenerating(true)
     
@@ -233,37 +269,43 @@ export default function ResumeBuilder() {
                   <input
                     type="text"
                     placeholder="Full Name"
-                    value={section.content.fullName}
+                    value={section.content.fullName || ''}
+                    onChange={(e) => updateSectionContent(section.id, 'fullName', e.target.value)}
                     className="input-field"
                   />
                   <input
                     type="email"
                     placeholder="Email"
-                    value={section.content.email}
+                    value={section.content.email || ''}
+                    onChange={(e) => updateSectionContent(section.id, 'email', e.target.value)}
                     className="input-field"
                   />
                   <input
                     type="tel"
                     placeholder="Phone"
-                    value={section.content.phone}
+                    value={section.content.phone || ''}
+                    onChange={(e) => updateSectionContent(section.id, 'phone', e.target.value)}
                     className="input-field"
                   />
                   <input
                     type="text"
                     placeholder="Location"
-                    value={section.content.location}
+                    value={section.content.location || ''}
+                    onChange={(e) => updateSectionContent(section.id, 'location', e.target.value)}
                     className="input-field"
                   />
                   <input
                     type="text"
                     placeholder="LinkedIn"
-                    value={section.content.linkedin}
+                    value={section.content.linkedin || ''}
+                    onChange={(e) => updateSectionContent(section.id, 'linkedin', e.target.value)}
                     className="input-field"
                   />
                   <input
                     type="text"
                     placeholder="Website"
-                    value={section.content.website}
+                    value={section.content.website || ''}
+                    onChange={(e) => updateSectionContent(section.id, 'website', e.target.value)}
                     className="input-field"
                   />
                 </div>
@@ -273,7 +315,8 @@ export default function ResumeBuilder() {
                 <div>
                   <textarea
                     placeholder="Write a compelling professional summary..."
-                    value={section.content.text}
+                    value={section.content.text || ''}
+                    onChange={(e) => updateSectionContent(section.id, 'text', e.target.value)}
                     rows={4}
                     className="input-field resize-none"
                   />
@@ -292,30 +335,35 @@ export default function ResumeBuilder() {
                         <input
                           type="text"
                           placeholder="Company"
-                          value={exp.company}
+                          value={exp.company || ''}
+                          onChange={(e) => updateExperienceField(section.id, index, 'company', e.target.value)}
                           className="input-field"
                         />
                         <input
                           type="text"
                           placeholder="Position"
-                          value={exp.position}
+                          value={exp.position || ''}
+                          onChange={(e) => updateExperienceField(section.id, index, 'position', e.target.value)}
                           className="input-field"
                         />
                         <input
                           type="text"
                           placeholder="Location"
-                          value={exp.location}
+                          value={exp.location || ''}
+                          onChange={(e) => updateExperienceField(section.id, index, 'location', e.target.value)}
                           className="input-field"
                         />
                         <div className="flex space-x-2">
                           <input
                             type="month"
-                            value={exp.startDate}
+                            value={exp.startDate || ''}
+                            onChange={(e) => updateExperienceField(section.id, index, 'startDate', e.target.value)}
                             className="input-field"
                           />
                           <input
                             type="month"
-                            value={exp.endDate}
+                            value={exp.endDate || ''}
+                            onChange={(e) => updateExperienceField(section.id, index, 'endDate', e.target.value)}
                             placeholder="Present"
                             className="input-field"
                           />
@@ -323,7 +371,8 @@ export default function ResumeBuilder() {
                       </div>
                       <textarea
                         placeholder="Describe your achievements and responsibilities..."
-                        value={exp.description}
+                        value={exp.description || ''}
+                        onChange={(e) => updateExperienceField(section.id, index, 'description', e.target.value)}
                         rows={4}
                         className="input-field resize-none"
                       />
