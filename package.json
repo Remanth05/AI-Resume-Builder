@@ -1,28 +1,40 @@
 {
-  "name": "ai-resume-builder",
-  "version": "1.0.0",
-  "description": "An AI-powered resume builder application",
+  "name": "resumier",
   "private": true,
+  "version": "1.0.0",
+  "description": "AI-powered resume builder with Gemini AI, Clerk auth, and modern tech stack",
+  "type": "module",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview",
+    "server": "cd server && npm run dev"
   },
   "dependencies": {
-    "next": "14.0.4",
+    "@clerk/clerk-react": "^4.30.0",
+    "@google/generative-ai": "^0.2.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "typescript": "^5.3.3",
-    "@types/node": "^20.10.5",
-    "@types/react": "^18.2.45",
-    "@types/react-dom": "^18.2.18"
+    "react-router-dom": "^6.20.1",
+    "lucide-react": "^0.294.0",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.1",
+    "axios": "^1.6.2"
   },
   "devDependencies": {
-    "eslint": "^8.56.0",
-    "eslint-config-next": "14.0.4",
-    "tailwindcss": "^3.3.6",
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@typescript-eslint/eslint-plugin": "^6.14.0",
+    "@typescript-eslint/parser": "^6.14.0",
+    "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.16",
-    "postcss": "^8.4.32"
+    "eslint": "^8.55.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.5",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.3.6",
+    "typescript": "^5.2.2",
+    "vite": "^5.0.8"
   }
 }
