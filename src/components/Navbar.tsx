@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react'
+import { AuthSignedIn, AuthSignedOut, AuthSignInButton, AuthUserButton } from './AuthWrappers'
 import { FileText, Menu, X } from 'lucide-react'
 import { useState } from 'react'
 
@@ -21,7 +21,7 @@ export default function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <SignedIn>
+            <AuthSignedIn>
               <Link
                 to="/dashboard"
                 className={`text-sm font-medium transition-colors ${
@@ -42,15 +42,15 @@ export default function Navbar() {
               >
                 Create Resume
               </Link>
-              <UserButton afterSignOutUrl="/" />
-            </SignedIn>
-            <SignedOut>
-              <SignInButton mode="modal">
+              <AuthUserButton afterSignOutUrl="/" />
+            </AuthSignedIn>
+            <AuthSignedOut>
+              <AuthSignInButton mode="modal">
                 <button className="btn-primary">
                   Sign In
                 </button>
-              </SignInButton>
-            </SignedOut>
+              </AuthSignInButton>
+            </AuthSignedOut>
           </div>
 
           {/* Mobile menu button */}
@@ -68,7 +68,7 @@ export default function Navbar() {
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-gray-200">
             <div className="flex flex-col space-y-4">
-              <SignedIn>
+              <AuthSignedIn>
                 <Link
                   to="/dashboard"
                   className="text-sm font-medium text-gray-700 hover:text-blue-600"
@@ -84,16 +84,16 @@ export default function Navbar() {
                   Create Resume
                 </Link>
                 <div className="pt-2">
-                  <UserButton afterSignOutUrl="/" />
+                  <AuthUserButton afterSignOutUrl="/" />
                 </div>
-              </SignedIn>
-              <SignedOut>
-                <SignInButton mode="modal">
+              </AuthSignedIn>
+              <AuthSignedOut>
+                <AuthSignInButton mode="modal">
                   <button className="btn-primary w-full">
                     Sign In
                   </button>
-                </SignInButton>
-              </SignedOut>
+                </AuthSignInButton>
+              </AuthSignedOut>
             </div>
           </div>
         )}

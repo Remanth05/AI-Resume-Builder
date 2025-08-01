@@ -1,10 +1,10 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { SignedIn, SignedOut } from '@clerk/clerk-react'
 import LandingPage from './pages/LandingPage'
 import Dashboard from './pages/Dashboard'
 import ResumeBuilder from './pages/ResumeBuilder'
 import Profile from './pages/Profile'
 import Navbar from './components/Navbar'
+import { AuthSignedIn } from './components/AuthWrappers'
 
 function App() {
   return (
@@ -15,25 +15,25 @@ function App() {
         <Route
           path="/dashboard"
           element={
-            <SignedIn>
+            <AuthSignedIn>
               <Dashboard />
-            </SignedIn>
+            </AuthSignedIn>
           }
         />
         <Route
           path="/resume/:id?"
           element={
-            <SignedIn>
+            <AuthSignedIn>
               <ResumeBuilder />
-            </SignedIn>
+            </AuthSignedIn>
           }
         />
         <Route
           path="/profile"
           element={
-            <SignedIn>
+            <AuthSignedIn>
               <Profile />
-            </SignedIn>
+            </AuthSignedIn>
           }
         />
         {/* Redirect any other routes to home */}

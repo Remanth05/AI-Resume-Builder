@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
+import { resumeAPI, showToast } from '../utils/api'
+import { downloadAsPDF } from '../utils/pdfGenerator'
+import { geminiAI } from '../utils/geminiAI'
 import { 
   Save, 
   Download, 
@@ -30,17 +33,39 @@ interface ResumeData {
 
 export default function ResumeBuilder() {
   const { id } = useParams()
+  const [searchParams] = useSearchParams()
   const [resumeData, setResumeData] = useState<ResumeData | null>(null)
   const [activeSection, setActiveSection] = useState<string>('personal')
   const [isGenerating, setIsGenerating] = useState(false)
-  const [showPreview, setShowPreview] = useState(false)
+  const [showPreview, setShowPreview] = useState(searchParams.get('preview') === 'true')
   const [loading, setLoading] = useState(true)
+  const [isSaving, setIsSaving] = useState(false)
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [isDownloading, setIsDownloading] = useState(false)
 
   useEffect(() => {
-    // TODO: Load resume data from API if id exists, otherwise create new
-    const mockResumeData: ResumeData = {
-      id: id || 'new',
-      title: id ? 'My Resume' : 'New Resume',
+    const loadResumeData = async () => {
+      if (id && id !== 'new') {
+        try {
+          // Try to load existing resume
+          const response = await resumeAPI.getResume(id)
+          setResumeData(response.data)
+        } catch (error) {
+          console.error('Failed to load resume:', error)
+          // If loading fails, create new resume structure
+          createNewResumeData()
+        }
+      } else {
+        // Create new resume
+        createNewResumeData()
+      }
+      setLoading(false)
+    }
+
+    const createNewResumeData = () => {
+      const mockResumeData: ResumeData = {
+        id: 'new',
+        title: 'New Resume',
       sections: [
         {
           id: '1',
@@ -80,7 +105,7 @@ export default function ResumeBuilder() {
                 location: 'San Francisco, CA',
                 startDate: '2022-01',
                 endDate: 'Present',
-                description: '• Led development of React-based dashboard increasing user engagement by 40%\n• Mentored junior developers and established coding standards\n• Collaborated with design team to implement responsive UI components'
+                description: '• Led development of React-based dashboard increasing user engagement by 40%\n• Mentored junior developers and established coding standards\n�� Collaborated with design team to implement responsive UI components'
               }
             ]
           },
@@ -100,39 +125,206 @@ export default function ResumeBuilder() {
       ]
     }
 
-    setTimeout(() => {
       setResumeData(mockResumeData)
-      setLoading(false)
-    }, 500)
+    }
+
+    loadResumeData()
   }, [id])
 
-  const generateAIContent = async (sectionType: string, userInput: string) => {
-    setIsGenerating(true)
-    
+  // Auto-save effect
+  useEffect(() => {
+    if (hasUnsavedChanges && resumeData && !loading) {
+      const timer = setTimeout(() => {
+        handleSave(true) // Auto-save
+      }, 2000) // Auto-save after 2 seconds of inactivity
+
+      return () => clearTimeout(timer)
+    }
+  }, [hasUnsavedChanges, resumeData, loading])
+
+  // Save function
+  const handleSave = async (isAutoSave = false) => {
+    if (!resumeData) return
+
     try {
-      // TODO: Integrate with Gemini AI API
-      // Mock AI generation for now
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
-      let generatedContent = ''
-      
-      switch (sectionType) {
-        case 'summary':
-          generatedContent = `Dynamic ${userInput} with proven track record of delivering high-impact solutions. Skilled in leveraging cutting-edge technologies to drive business growth and enhance user experiences. Known for collaborative leadership and innovative problem-solving approach.`
-          break
-        case 'experience':
-          generatedContent = `• Developed and maintained scalable applications serving 100,000+ users daily
-• Implemented modern development practices, reducing deployment time by 60%
-• Collaborated with cross-functional teams to deliver projects on time and within budget
-• Optimized application performance, improving load times by 45%`
-          break
-        default:
-          generatedContent = `AI-generated content for ${sectionType} based on: ${userInput}`
+      setIsSaving(true)
+
+      // Check if this is an existing resume with a valid ID
+      if (id && id !== 'new' && resumeData.id && resumeData.id !== 'new') {
+        await resumeAPI.updateResume(resumeData.id, resumeData)
+      } else {
+        // Create new resume
+        const response = await resumeAPI.createResume(resumeData)
+        // Update the resume data with the new ID
+        setResumeData(prev => prev ? { ...prev, id: response.data.id } : null)
+        // Update URL to reflect the new resume ID
+        window.history.replaceState(null, '', `/resume/${response.data.id}`)
       }
-      
+
+      setHasUnsavedChanges(false)
+      if (!isAutoSave) {
+        showToast('Resume saved successfully!', 'success')
+      }
+    } catch (error) {
+      console.error('Failed to save resume:', error)
+      if (!isAutoSave) {
+        showToast('Failed to save resume', 'error')
+      }
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  // Download function
+  const handleDownload = async () => {
+    if (!resumeData) return
+
+    try {
+      setIsDownloading(true)
+      showToast('Generating PDF...', 'info')
+
+      // Convert resume data to the expected format
+      const resumeForPDF = {
+        ...resumeData,
+        sections: resumeData.sections
+      }
+
+      // Download as PDF using the existing function
+      await downloadAsPDF(resumeForPDF as any)
+
+      showToast('PDF downloaded successfully!', 'success')
+
+    } catch (error) {
+      console.error('Failed to download resume:', error)
+      showToast('Failed to download resume. Please try again.', 'error')
+    } finally {
+      setIsDownloading(false)
+    }
+  }
+
+  // Helper function to update section content
+  const updateSectionContent = (sectionId: string, field: string, value: string) => {
+    if (!resumeData) return
+
+    setResumeData({
+      ...resumeData,
+      sections: resumeData.sections.map(section =>
+        section.id === sectionId
+          ? { ...section, content: { ...section.content, [field]: value } }
+          : section
+      )
+    })
+    setHasUnsavedChanges(true)
+  }
+
+  // Helper function to update experience fields
+  const updateExperienceField = (sectionId: string, expIndex: number, field: string, value: string) => {
+    if (!resumeData) return
+
+    setResumeData({
+      ...resumeData,
+      sections: resumeData.sections.map(section =>
+        section.id === sectionId
+          ? {
+              ...section,
+              content: {
+                ...section.content,
+                experiences: section.content.experiences.map((exp: any, index: number) =>
+                  index === expIndex ? { ...exp, [field]: value } : exp
+                )
+              }
+            }
+          : section
+      )
+    })
+    setHasUnsavedChanges(true)
+  }
+
+  // Helper function to add skill
+  const addSkill = (sectionId: string, skill: string) => {
+    if (!resumeData) return
+
+    setResumeData({
+      ...resumeData,
+      sections: resumeData.sections.map(section =>
+        section.id === sectionId
+          ? {
+              ...section,
+              content: {
+                ...section.content,
+                skills: [...(section.content.skills || []), skill]
+              }
+            }
+          : section
+      )
+    })
+    setHasUnsavedChanges(true)
+  }
+
+  // Helper function to remove skill
+  const removeSkill = (sectionId: string, skillIndex: number) => {
+    if (!resumeData) return
+
+    setResumeData({
+      ...resumeData,
+      sections: resumeData.sections.map(section =>
+        section.id === sectionId
+          ? {
+              ...section,
+              content: {
+                ...section.content,
+                skills: section.content.skills.filter((_: string, index: number) => index !== skillIndex)
+              }
+            }
+          : section
+      )
+    })
+    setHasUnsavedChanges(true)
+  }
+
+  const generateAIContent = async (sectionType: string, userInput: string = '') => {
+    setIsGenerating(true)
+
+    try {
+      let generatedContent = ''
+
+      // Get job title from personal section or use default
+      const personalSection = resumeData?.sections.find(s => s.type === 'personal')
+      const jobTitle = userInput || personalSection?.content.jobTitle || 'Software Engineer'
+
+      // Always try to use Gemini AI first, but fall back to demo content on any error
+      try {
+        if (geminiAI.isConfigured()) {
+          // Use actual Gemini AI
+          switch (sectionType) {
+            case 'summary':
+              generatedContent = await geminiAI.generateSummary(jobTitle)
+              break
+            case 'experience':
+              generatedContent = await geminiAI.generateExperienceDescription(jobTitle)
+              break
+            case 'skills':
+              const skills = await geminiAI.generateSkills(jobTitle)
+              return skills
+            default:
+              generatedContent = `AI-generated content for ${sectionType} based on: ${jobTitle}`
+          }
+        } else {
+          throw new Error('AI not configured, using demo content')
+        }
+      } catch (aiError) {
+        console.log('Using demo content due to AI error:', aiError)
+        // Use demo content as fallback
+        generatedContent = geminiAI.getDemoContent(sectionType as any, jobTitle)
+        if (sectionType === 'skills') {
+          return generatedContent
+        }
+      }
+
       return generatedContent
     } catch (error) {
       console.error('AI generation error:', error)
+      showToast('Failed to generate content. Please try again.', 'error')
       throw error
     } finally {
       setIsGenerating(false)
@@ -182,13 +374,21 @@ export default function ResumeBuilder() {
             <Share2 className="h-5 w-5 mr-2" />
             Share
           </button>
-          <button className="btn-secondary">
+          <button
+            onClick={handleDownload}
+            disabled={isDownloading}
+            className="btn-secondary disabled:opacity-50"
+          >
             <Download className="h-5 w-5 mr-2" />
-            Download
+            {isDownloading ? 'Generating PDF...' : 'Download'}
           </button>
-          <button className="btn-primary">
+          <button
+            onClick={() => handleSave()}
+            disabled={isSaving}
+            className="btn-primary disabled:opacity-50"
+          >
             <Save className="h-5 w-5 mr-2" />
-            Save
+            {isSaving ? 'Saving...' : hasUnsavedChanges ? 'Save Changes' : 'Saved'}
           </button>
         </div>
       </div>
@@ -202,8 +402,23 @@ export default function ResumeBuilder() {
                 <h3 className="text-lg font-semibold text-gray-900">{section.title}</h3>
                 <div className="flex items-center space-x-2">
                   <button
-                    onClick={() => generateAIContent(section.type, 'Software Engineer')}
-                    className="text-blue-600 hover:text-blue-700 p-1"
+                    onClick={async () => {
+                      try {
+                        const content = await generateAIContent(section.type)
+                        if (section.type === 'skills' && Array.isArray(content)) {
+                          // For skills, replace the entire skills array
+                          updateSectionContent(section.id, 'skills', content)
+                        } else if (typeof content === 'string') {
+                          // For other content types, update the text field
+                          const field = section.type === 'summary' ? 'text' : 'content'
+                          updateSectionContent(section.id, field, content)
+                        }
+                        showToast('AI content generated successfully!', 'success')
+                      } catch (error) {
+                        // Error is already handled in generateAIContent
+                      }
+                    }}
+                    className="text-blue-600 hover:text-blue-700 p-1 disabled:opacity-50"
                     title="Generate with AI"
                     disabled={isGenerating}
                   >
@@ -232,37 +447,43 @@ export default function ResumeBuilder() {
                   <input
                     type="text"
                     placeholder="Full Name"
-                    value={section.content.fullName}
+                    value={section.content.fullName || ''}
+                    onChange={(e) => updateSectionContent(section.id, 'fullName', e.target.value)}
                     className="input-field"
                   />
                   <input
                     type="email"
                     placeholder="Email"
-                    value={section.content.email}
+                    value={section.content.email || ''}
+                    onChange={(e) => updateSectionContent(section.id, 'email', e.target.value)}
                     className="input-field"
                   />
                   <input
                     type="tel"
                     placeholder="Phone"
-                    value={section.content.phone}
+                    value={section.content.phone || ''}
+                    onChange={(e) => updateSectionContent(section.id, 'phone', e.target.value)}
                     className="input-field"
                   />
                   <input
                     type="text"
                     placeholder="Location"
-                    value={section.content.location}
+                    value={section.content.location || ''}
+                    onChange={(e) => updateSectionContent(section.id, 'location', e.target.value)}
                     className="input-field"
                   />
                   <input
                     type="text"
                     placeholder="LinkedIn"
-                    value={section.content.linkedin}
+                    value={section.content.linkedin || ''}
+                    onChange={(e) => updateSectionContent(section.id, 'linkedin', e.target.value)}
                     className="input-field"
                   />
                   <input
                     type="text"
                     placeholder="Website"
-                    value={section.content.website}
+                    value={section.content.website || ''}
+                    onChange={(e) => updateSectionContent(section.id, 'website', e.target.value)}
                     className="input-field"
                   />
                 </div>
@@ -272,7 +493,8 @@ export default function ResumeBuilder() {
                 <div>
                   <textarea
                     placeholder="Write a compelling professional summary..."
-                    value={section.content.text}
+                    value={section.content.text || ''}
+                    onChange={(e) => updateSectionContent(section.id, 'text', e.target.value)}
                     rows={4}
                     className="input-field resize-none"
                   />
@@ -291,30 +513,35 @@ export default function ResumeBuilder() {
                         <input
                           type="text"
                           placeholder="Company"
-                          value={exp.company}
+                          value={exp.company || ''}
+                          onChange={(e) => updateExperienceField(section.id, index, 'company', e.target.value)}
                           className="input-field"
                         />
                         <input
                           type="text"
                           placeholder="Position"
-                          value={exp.position}
+                          value={exp.position || ''}
+                          onChange={(e) => updateExperienceField(section.id, index, 'position', e.target.value)}
                           className="input-field"
                         />
                         <input
                           type="text"
                           placeholder="Location"
-                          value={exp.location}
+                          value={exp.location || ''}
+                          onChange={(e) => updateExperienceField(section.id, index, 'location', e.target.value)}
                           className="input-field"
                         />
                         <div className="flex space-x-2">
                           <input
                             type="month"
-                            value={exp.startDate}
+                            value={exp.startDate || ''}
+                            onChange={(e) => updateExperienceField(section.id, index, 'startDate', e.target.value)}
                             className="input-field"
                           />
                           <input
                             type="month"
-                            value={exp.endDate}
+                            value={exp.endDate || ''}
+                            onChange={(e) => updateExperienceField(section.id, index, 'endDate', e.target.value)}
                             placeholder="Present"
                             className="input-field"
                           />
@@ -322,14 +549,25 @@ export default function ResumeBuilder() {
                       </div>
                       <textarea
                         placeholder="Describe your achievements and responsibilities..."
-                        value={exp.description}
+                        value={exp.description || ''}
+                        onChange={(e) => updateExperienceField(section.id, index, 'description', e.target.value)}
                         rows={4}
                         className="input-field resize-none"
                       />
                       <div className="flex justify-between items-center mt-3">
                         <button
-                          onClick={() => generateAIContent('experience', exp.position)}
-                          className="text-blue-600 hover:text-blue-700 text-sm flex items-center"
+                          onClick={async () => {
+                            try {
+                              const content = await generateAIContent('experience', exp.position)
+                              if (typeof content === 'string') {
+                                updateExperienceField(section.id, index, 'description', content)
+                                showToast('AI content generated successfully!', 'success')
+                              }
+                            } catch (error) {
+                              // Error is already handled in generateAIContent
+                            }
+                          }}
+                          className="text-blue-600 hover:text-blue-700 text-sm flex items-center disabled:opacity-50"
                           disabled={isGenerating}
                         >
                           <Sparkles className="h-4 w-4 mr-1" />
@@ -357,7 +595,10 @@ export default function ResumeBuilder() {
                         className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center"
                       >
                         {skill}
-                        <button className="ml-2 text-blue-600 hover:text-blue-800">
+                        <button
+                          onClick={() => removeSkill(section.id, index)}
+                          className="ml-2 text-blue-600 hover:text-blue-800"
+                        >
                           <Trash2 className="h-3 w-3" />
                         </button>
                       </span>
@@ -371,7 +612,7 @@ export default function ResumeBuilder() {
                       if (e.key === 'Enter') {
                         const input = e.target as HTMLInputElement
                         if (input.value.trim()) {
-                          // Add skill logic
+                          addSkill(section.id, input.value.trim())
                           input.value = ''
                         }
                       }

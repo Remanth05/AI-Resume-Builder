@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useUser } from '@clerk/clerk-react'
+import { useAuthUser } from '../components/AuthWrappers'
 import { 
   User, 
   Mail, 
@@ -13,7 +13,7 @@ import {
 } from 'lucide-react'
 
 export default function Profile() {
-  const { user } = useUser()
+  const { user } = useAuthUser()
   const [activeTab, setActiveTab] = useState('personal')
   const [notifications, setNotifications] = useState({
     emailUpdates: true,
