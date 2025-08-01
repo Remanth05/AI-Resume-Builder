@@ -40,8 +40,6 @@ export function DemoAuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = () => {
     setUser(null)
     setIsSignedIn(false)
-    // Redirect to sign-in page
-    window.location.href = '/sign-in'
   }
 
   return (
