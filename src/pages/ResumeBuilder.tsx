@@ -143,6 +143,46 @@ export default function ResumeBuilder() {
     })
   }
 
+  // Helper function to add skill
+  const addSkill = (sectionId: string, skill: string) => {
+    if (!resumeData) return
+
+    setResumeData({
+      ...resumeData,
+      sections: resumeData.sections.map(section =>
+        section.id === sectionId
+          ? {
+              ...section,
+              content: {
+                ...section.content,
+                skills: [...(section.content.skills || []), skill]
+              }
+            }
+          : section
+      )
+    })
+  }
+
+  // Helper function to remove skill
+  const removeSkill = (sectionId: string, skillIndex: number) => {
+    if (!resumeData) return
+
+    setResumeData({
+      ...resumeData,
+      sections: resumeData.sections.map(section =>
+        section.id === sectionId
+          ? {
+              ...section,
+              content: {
+                ...section.content,
+                skills: section.content.skills.filter((_: string, index: number) => index !== skillIndex)
+              }
+            }
+          : section
+      )
+    })
+  }
+
   const generateAIContent = async (sectionType: string, userInput: string) => {
     setIsGenerating(true)
     
@@ -407,7 +447,10 @@ export default function ResumeBuilder() {
                         className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center"
                       >
                         {skill}
-                        <button className="ml-2 text-blue-600 hover:text-blue-800">
+                        <button
+                          onClick={() => removeSkill(section.id, index)}
+                          className="ml-2 text-blue-600 hover:text-blue-800"
+                        >
                           <Trash2 className="h-3 w-3" />
                         </button>
                       </span>
@@ -421,7 +464,7 @@ export default function ResumeBuilder() {
                       if (e.key === 'Enter') {
                         const input = e.target as HTMLInputElement
                         if (input.value.trim()) {
-                          // Add skill logic
+                          addSkill(section.id, input.value.trim())
                           input.value = ''
                         }
                       }
