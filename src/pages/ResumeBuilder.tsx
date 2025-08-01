@@ -426,7 +426,7 @@ export default function ResumeBuilder() {
       <div className="grid lg:grid-cols-2 gap-8">
         {/* Editor Panel */}
         <div className="space-y-6">
-          {resumeData.sections.map((section) => (
+          {(resumeData.sections || []).map((section) => (
             <div key={section.id} className="card">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold text-gray-900">{section.title}</h3>
