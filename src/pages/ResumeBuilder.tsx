@@ -153,7 +153,7 @@ export default function ResumeBuilder() {
           order: 7
         }
       ]
-    }
+      }
 
       setResumeData(mockResumeData)
     }
