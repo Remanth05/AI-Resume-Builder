@@ -1,19 +1,25 @@
 import { useState, useEffect } from 'react'
-import { useParams, useSearchParams } from 'react-router-dom'
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
 import { resumeAPI, showToast } from '../utils/api'
 import { downloadAsPDF } from '../utils/pdfGenerator'
 import { geminiAI } from '../utils/geminiAI'
-import { 
-  Save, 
-  Download, 
-  Share2, 
-  Eye, 
-  EyeOff, 
+import {
+  Save,
+  Download,
+  Share2,
+  Eye,
+  EyeOff,
   Sparkles,
   Plus,
   Trash2,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  ArrowLeft,
+  Template,
+  X,
+  Users,
+  BarChart3,
+  FileText
 } from 'lucide-react'
 
 interface ResumeSection {
@@ -34,6 +40,7 @@ interface ResumeData {
 export default function ResumeBuilder() {
   const { id } = useParams()
   const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
   const [resumeData, setResumeData] = useState<ResumeData | null>(null)
   const [activeSection, setActiveSection] = useState<string>('personal')
   const [isGenerating, setIsGenerating] = useState(false)
@@ -42,6 +49,13 @@ export default function ResumeBuilder() {
   const [isSaving, setIsSaving] = useState(false)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [isDownloading, setIsDownloading] = useState(false)
+  const [showTemplates, setShowTemplates] = useState(false)
+  const [stats, setStats] = useState({
+    downloads: 12,
+    shares: 8,
+    views: 45,
+    totalResumes: 3
+  })
 
   useEffect(() => {
     const loadResumeData = async () => {
