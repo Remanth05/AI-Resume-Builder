@@ -121,6 +121,36 @@ export default function ResumeBuilder() {
           },
           isVisible: true,
           order: 4
+        },
+        {
+          id: '5',
+          type: 'education',
+          title: 'Education',
+          content: {
+            education: []
+          },
+          isVisible: true,
+          order: 5
+        },
+        {
+          id: '6',
+          type: 'projects',
+          title: 'Projects',
+          content: {
+            projects: []
+          },
+          isVisible: true,
+          order: 6
+        },
+        {
+          id: '7',
+          type: 'certifications',
+          title: 'Certifications',
+          content: {
+            certifications: []
+          },
+          isVisible: true,
+          order: 7
         }
       ]
     }
