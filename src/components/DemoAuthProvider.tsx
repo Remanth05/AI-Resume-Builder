@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react'
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react'
 
 interface User {
   id: string
@@ -79,12 +79,16 @@ export function DemoSignInButton({ children, mode = 'modal' }: { children: React
 
 export function DemoUserButton() {
   const { user, signOut } = useDemoAuth()
-  
+  const [showDropdown, setShowDropdown] = useState(false)
+
   if (!user) return null
   
   return (
-    <div className="relative group">
-      <button className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100">
+    <div className="relative">
+      <button
+        className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100"
+        onClick={() => setShowDropdown(!showDropdown)}
+      >
         <img
           src={user.imageUrl}
           alt={`${user.firstName} ${user.lastName}`}
@@ -94,19 +98,24 @@ export function DemoUserButton() {
           {user.firstName} {user.lastName}
         </span>
       </button>
-      
-      <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 opacity-0 group-hover:opacity-100 transition-opacity">
-        <div className="px-4 py-2 text-sm text-gray-700 border-b">
-          <div className="font-medium">{user.firstName} {user.lastName}</div>
-          <div className="text-gray-500">{user.primaryEmailAddress?.emailAddress}</div>
+
+      {showDropdown && (
+        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-[9999] border border-gray-200">
+          <div className="px-4 py-2 text-sm text-gray-700 border-b">
+            <div className="font-medium">{user.firstName} {user.lastName}</div>
+            <div className="text-gray-500">{user.primaryEmailAddress?.emailAddress}</div>
+          </div>
+          <button
+            onClick={() => {
+              signOut()
+              setShowDropdown(false)
+            }}
+            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+          >
+            Sign out
+          </button>
         </div>
-        <button
-          onClick={signOut}
-          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-        >
-          Sign out
-        </button>
-      </div>
+      )}
     </div>
   )
 }
