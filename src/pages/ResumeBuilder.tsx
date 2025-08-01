@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
+import { resumeAPI, showToast } from '../utils/api'
 import { 
   Save, 
   Download, 
@@ -36,6 +37,8 @@ export default function ResumeBuilder() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [showPreview, setShowPreview] = useState(searchParams.get('preview') === 'true')
   const [loading, setLoading] = useState(true)
+  const [isSaving, setIsSaving] = useState(false)
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 
   useEffect(() => {
     // TODO: Load resume data from API if id exists, otherwise create new
@@ -107,6 +110,46 @@ export default function ResumeBuilder() {
     }, 500)
   }, [id])
 
+  // Auto-save effect
+  useEffect(() => {
+    if (hasUnsavedChanges && resumeData && !loading) {
+      const timer = setTimeout(() => {
+        handleSave(true) // Auto-save
+      }, 2000) // Auto-save after 2 seconds of inactivity
+
+      return () => clearTimeout(timer)
+    }
+  }, [hasUnsavedChanges, resumeData, loading])
+
+  // Save function
+  const handleSave = async (isAutoSave = false) => {
+    if (!resumeData) return
+
+    try {
+      setIsSaving(true)
+
+      if (id && id !== 'new') {
+        await resumeAPI.updateResume(id, resumeData)
+      } else {
+        const response = await resumeAPI.createResume(resumeData)
+        // Update URL to reflect the new resume ID
+        window.history.replaceState(null, '', `/resume/${response.data.id}`)
+      }
+
+      setHasUnsavedChanges(false)
+      if (!isAutoSave) {
+        showToast('Resume saved successfully!', 'success')
+      }
+    } catch (error) {
+      console.error('Failed to save resume:', error)
+      if (!isAutoSave) {
+        showToast('Failed to save resume', 'error')
+      }
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
   // Helper function to update section content
   const updateSectionContent = (sectionId: string, field: string, value: string) => {
     if (!resumeData) return
@@ -119,6 +162,7 @@ export default function ResumeBuilder() {
           : section
       )
     })
+    setHasUnsavedChanges(true)
   }
 
   // Helper function to update experience fields
@@ -141,6 +185,7 @@ export default function ResumeBuilder() {
           : section
       )
     })
+    setHasUnsavedChanges(true)
   }
 
   // Helper function to add skill
@@ -161,6 +206,7 @@ export default function ResumeBuilder() {
           : section
       )
     })
+    setHasUnsavedChanges(true)
   }
 
   // Helper function to remove skill
@@ -263,9 +309,13 @@ export default function ResumeBuilder() {
             <Download className="h-5 w-5 mr-2" />
             Download
           </button>
-          <button className="btn-primary">
+          <button
+            onClick={() => handleSave()}
+            disabled={isSaving}
+            className="btn-primary disabled:opacity-50"
+          >
             <Save className="h-5 w-5 mr-2" />
-            Save
+            {isSaving ? 'Saving...' : hasUnsavedChanges ? 'Save Changes' : 'Saved'}
           </button>
         </div>
       </div>
