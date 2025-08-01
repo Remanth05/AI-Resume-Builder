@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 import { 
   Save, 
   Download, 
@@ -30,10 +30,11 @@ interface ResumeData {
 
 export default function ResumeBuilder() {
   const { id } = useParams()
+  const [searchParams] = useSearchParams()
   const [resumeData, setResumeData] = useState<ResumeData | null>(null)
   const [activeSection, setActiveSection] = useState<string>('personal')
   const [isGenerating, setIsGenerating] = useState(false)
-  const [showPreview, setShowPreview] = useState(false)
+  const [showPreview, setShowPreview] = useState(searchParams.get('preview') === 'true')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
