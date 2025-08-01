@@ -1,6 +1,4 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { SignedIn, SignedOut } from '@clerk/clerk-react'
-import { DemoSignedIn, DemoSignedOut } from './components/DemoAuthProvider'
 import LandingPage from './pages/LandingPage'
 import Dashboard from './pages/Dashboard'
 import ResumeBuilder from './pages/ResumeBuilder'
@@ -10,9 +8,19 @@ import Navbar from './components/Navbar'
 // Check if we're using demo mode
 const isUsingDemo = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY === 'pk_test_demo_key_for_development_bypass'
 
-// Choose the appropriate components based on the mode
-const AuthSignedIn = isUsingDemo ? DemoSignedIn : SignedIn
-const AuthSignedOut = isUsingDemo ? DemoSignedOut : SignedOut
+// Conditionally import auth components
+let AuthSignedIn: React.ComponentType<{ children: React.ReactNode }>
+let AuthSignedOut: React.ComponentType<{ children: React.ReactNode }>
+
+if (isUsingDemo) {
+  const { DemoSignedIn, DemoSignedOut } = await import('./components/DemoAuthProvider')
+  AuthSignedIn = DemoSignedIn
+  AuthSignedOut = DemoSignedOut
+} else {
+  const { SignedIn, SignedOut } = await import('@clerk/clerk-react')
+  AuthSignedIn = SignedIn
+  AuthSignedOut = SignedOut
+}
 
 function App() {
   return (
