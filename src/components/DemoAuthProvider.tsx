@@ -28,8 +28,8 @@ const demoUser: User = {
 }
 
 export function DemoAuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(demoUser)
-  const [isSignedIn, setIsSignedIn] = useState(true)
+  const [user, setUser] = React.useState<User | null>(demoUser)
+  const [isSignedIn, setIsSignedIn] = React.useState(true)
 
   const signIn = () => {
     setUser(demoUser)
@@ -49,7 +49,7 @@ export function DemoAuthProvider({ children }: { children: ReactNode }) {
 }
 
 export function useDemoAuth() {
-  const context = useContext(DemoAuthContext)
+  const context = React.useContext(DemoAuthContext)
   if (!context) {
     throw new Error('useDemoAuth must be used within DemoAuthProvider')
   }
@@ -79,10 +79,10 @@ export function DemoSignInButton({ children, mode = 'modal' }: { children: React
 
 export function DemoUserButton() {
   const { user, signOut } = useDemoAuth()
-  const [showDropdown, setShowDropdown] = useState(false)
+  const [showDropdown, setShowDropdown] = React.useState(false)
 
   // Close dropdown when clicking outside
-  useEffect(() => {
+  React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Element
       if (!target.closest('.demo-user-button')) {
