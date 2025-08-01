@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { useNavigate } from 'react-router-dom'
 
 interface User {
   id: string
@@ -27,7 +28,7 @@ const demoUser: User = {
   imageUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face'
 }
 
-export function DemoAuthProvider({ children }: { children: ReactNode }) {
+export function DemoAuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = React.useState<User | null>(demoUser)
   const [isSignedIn, setIsSignedIn] = React.useState(true)
 
@@ -39,6 +40,8 @@ export function DemoAuthProvider({ children }: { children: ReactNode }) {
   const signOut = () => {
     setUser(null)
     setIsSignedIn(false)
+    // Redirect to sign-in page
+    window.location.href = '/sign-in'
   }
 
   return (
@@ -57,17 +60,17 @@ export function useDemoAuth() {
 }
 
 // Demo wrapper components that mimic Clerk's API
-export function DemoSignedIn({ children }: { children: ReactNode }) {
+export function DemoSignedIn({ children }: { children: React.ReactNode }) {
   const { isSignedIn } = useDemoAuth()
   return isSignedIn ? <>{children}</> : null
 }
 
-export function DemoSignedOut({ children }: { children: ReactNode }) {
+export function DemoSignedOut({ children }: { children: React.ReactNode }) {
   const { isSignedIn } = useDemoAuth()
   return !isSignedIn ? <>{children}</> : null
 }
 
-export function DemoSignInButton({ children, mode = 'modal' }: { children: ReactNode, mode?: string }) {
+export function DemoSignInButton({ children, mode = 'modal' }: { children: React.ReactNode, mode?: string }) {
   const { signIn } = useDemoAuth()
   
   return (
