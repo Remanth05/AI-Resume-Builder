@@ -6,10 +6,10 @@ import { DemoSignedIn, DemoSignedOut, DemoUserButton, useDemoAuth } from './Demo
 const isUsingDemo = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY === 'pk_test_demo_key_for_development_bypass'
 
 // Conditional auth components
-export function AuthSignedIn({ children }: { children: React.ReactNode }) {
+export function AuthSignedIn({ children, fallback = null }: { children: React.ReactNode, fallback?: React.ReactNode }) {
   if (isUsingDemo) {
     const { isSignedIn } = useDemoAuth()
-    return isSignedIn ? <>{children}</> : null
+    return isSignedIn ? <>{children}</> : <>{fallback}</>
   } else {
     return <SignedIn>{children}</SignedIn>
   }
