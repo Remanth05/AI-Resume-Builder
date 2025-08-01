@@ -233,7 +233,7 @@ export default function ResumeBuilder() {
   }
 
   // Helper function to update section content
-  const updateSectionContent = (sectionId: string, field: string, value: string) => {
+  const updateSectionContent = (sectionId: string, field: string, value: string | string[]) => {
     if (!resumeData) return
 
     setResumeData({
