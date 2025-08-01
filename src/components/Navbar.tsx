@@ -42,7 +42,7 @@ export default function Navbar() {
               >
                 Create Resume
               </Link>
-              {isUsingDemo ? <AuthUserButton /> : <AuthUserButton afterSignOutUrl="/" />}
+              <AuthUserButton afterSignOutUrl="/" />
             </AuthSignedIn>
             <AuthSignedOut>
               <AuthSignInButton mode="modal">
