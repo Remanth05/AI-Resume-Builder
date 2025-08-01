@@ -177,14 +177,18 @@ export default function Dashboard() {
             Manage your resumes and track your job applications
           </p>
         </div>
-        <Link to="/resume" className="btn-primary">
+        <button
+          onClick={handleCreateNewResume}
+          disabled={actionLoading['create-new']}
+          className="btn-primary disabled:opacity-50"
+        >
           <Plus className="h-5 w-5 mr-2" />
-          Create New Resume
-        </Link>
+          {actionLoading['create-new'] ? 'Creating...' : 'Create New Resume'}
+        </button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <div className="card">
           <div className="flex items-center">
             <div className="bg-blue-100 p-3 rounded-lg">
@@ -192,11 +196,11 @@ export default function Dashboard() {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Total Resumes</p>
-              <p className="text-2xl font-bold text-gray-900">{resumes.length}</p>
+              <p className="text-2xl font-bold text-gray-900">{stats.totalResumes}</p>
             </div>
           </div>
         </div>
-        
+
         <div className="card">
           <div className="flex items-center">
             <div className="bg-green-100 p-3 rounded-lg">
@@ -204,11 +208,11 @@ export default function Dashboard() {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Downloads</p>
-              <p className="text-2xl font-bold text-gray-900">24</p>
+              <p className="text-2xl font-bold text-gray-900">{stats.totalDownloads}</p>
             </div>
           </div>
         </div>
-        
+
         <div className="card">
           <div className="flex items-center">
             <div className="bg-purple-100 p-3 rounded-lg">
@@ -216,7 +220,19 @@ export default function Dashboard() {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Shares</p>
-              <p className="text-2xl font-bold text-gray-900">8</p>
+              <p className="text-2xl font-bold text-gray-900">{stats.totalShares}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="card">
+          <div className="flex items-center">
+            <div className="bg-orange-100 p-3 rounded-lg">
+              <Eye className="h-6 w-6 text-orange-600" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-500">Total Views</p>
+              <p className="text-2xl font-bold text-gray-900">{stats.totalViews}</p>
             </div>
           </div>
         </div>
@@ -234,10 +250,14 @@ export default function Dashboard() {
               Get started by creating your first resume
             </p>
             <div className="mt-6">
-              <Link to="/resume" className="btn-primary">
+              <button
+                onClick={handleCreateNewResume}
+                disabled={actionLoading['create-new']}
+                className="btn-primary disabled:opacity-50"
+              >
                 <Plus className="h-5 w-5 mr-2" />
-                Create Your First Resume
-              </Link>
+                {actionLoading['create-new'] ? 'Creating...' : 'Create Your First Resume'}
+              </button>
             </div>
           </div>
         ) : (
@@ -266,32 +286,39 @@ export default function Dashboard() {
                   <div className="flex space-x-2">
                     <Link
                       to={`/resume/${resume.id}`}
-                      className="text-blue-600 hover:text-blue-700 p-1"
+                      className="text-blue-600 hover:text-blue-700 p-1 transition-colors"
                       title="Edit"
                     >
                       <Edit3 className="h-4 w-4" />
                     </Link>
-                    <button
-                      className="text-green-600 hover:text-green-700 p-1"
+                    <Link
+                      to={`/resume/${resume.id}?preview=true`}
+                      className="text-green-600 hover:text-green-700 p-1 transition-colors"
                       title="Preview"
                     >
                       <Eye className="h-4 w-4" />
-                    </button>
+                    </Link>
                     <button
-                      className="text-purple-600 hover:text-purple-700 p-1"
+                      onClick={() => handleDownloadResume(resume.id)}
+                      disabled={actionLoading[`download-${resume.id}`]}
+                      className="text-purple-600 hover:text-purple-700 p-1 disabled:opacity-50 transition-colors"
                       title="Download"
                     >
                       <Download className="h-4 w-4" />
                     </button>
                     <button
-                      className="text-orange-600 hover:text-orange-700 p-1"
+                      onClick={() => handleShareResume(resume.id)}
+                      disabled={actionLoading[`share-${resume.id}`]}
+                      className="text-orange-600 hover:text-orange-700 p-1 disabled:opacity-50 transition-colors"
                       title="Share"
                     >
                       <Share2 className="h-4 w-4" />
                     </button>
                   </div>
                   <button
-                    className="text-red-600 hover:text-red-700 p-1"
+                    onClick={() => handleDeleteResume(resume.id)}
+                    disabled={actionLoading[`delete-${resume.id}`]}
+                    className="text-red-600 hover:text-red-700 p-1 disabled:opacity-50 transition-colors"
                     title="Delete"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -307,16 +334,17 @@ export default function Dashboard() {
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Link
-            to="/resume"
-            className="flex items-center p-4 bg-white rounded-lg hover:shadow-md transition-shadow"
+          <button
+            onClick={handleCreateNewResume}
+            disabled={actionLoading['create-new']}
+            className="flex items-center p-4 bg-white rounded-lg hover:shadow-md transition-shadow disabled:opacity-50"
           >
             <Plus className="h-8 w-8 text-blue-600 mr-3" />
             <div>
               <p className="font-medium text-gray-900">Create New Resume</p>
               <p className="text-sm text-gray-600">Start from scratch or use a template</p>
             </div>
-          </Link>
+          </button>
           
           <button className="flex items-center p-4 bg-white rounded-lg hover:shadow-md transition-shadow">
             <Download className="h-8 w-8 text-green-600 mr-3" />
