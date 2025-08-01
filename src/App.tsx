@@ -15,6 +15,7 @@ function App() {
       </AuthSignedIn>
       
       <Routes>
+        {/* Landing page - main entry point for all users */}
         <Route path="/" element={<LandingPage />} />
         
         {/* SignIn route - only show when signed out */}
