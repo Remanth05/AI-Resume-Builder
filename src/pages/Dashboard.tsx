@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { useUser } from '@clerk/clerk-react'
+import { useAuthUser } from '../components/AuthWrappers'
 import { 
   Plus, 
   FileText, 
@@ -22,7 +22,7 @@ interface Resume {
 }
 
 export default function Dashboard() {
-  const { user } = useUser()
+  const { user } = useAuthUser()
   const [resumes, setResumes] = useState<Resume[]>([])
   const [loading, setLoading] = useState(true)
 

@@ -51,3 +51,14 @@ export function AuthUserButton({ afterSignOutUrl }: { afterSignOutUrl?: string }
     return <UserButton afterSignOutUrl={afterSignOutUrl} />
   }
 }
+
+export function useAuthUser() {
+  if (isUsingDemo) {
+    const { useDemoAuth } = require('./DemoAuthProvider')
+    const { user } = useDemoAuth()
+    return { user, isLoaded: true, isSignedIn: !!user }
+  } else {
+    const { useUser } = require('@clerk/clerk-react')
+    return useUser()
+  }
+}
