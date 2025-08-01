@@ -229,7 +229,7 @@ export default function ResumeBuilder() {
               ...section,
               content: {
                 ...section.content,
-                experiences: section.content.experiences.map((exp: any, index: number) =>
+                experiences: (section.content.experiences || []).map((exp: any, index: number) =>
                   index === expIndex ? { ...exp, [field]: value } : exp
                 )
               }
@@ -273,7 +273,7 @@ export default function ResumeBuilder() {
               ...section,
               content: {
                 ...section.content,
-                skills: section.content.skills.filter((_: string, index: number) => index !== skillIndex)
+                skills: (section.content.skills || []).filter((_: string, index: number) => index !== skillIndex)
               }
             }
           : section
@@ -507,7 +507,7 @@ export default function ResumeBuilder() {
 
               {section.type === 'experience' && (
                 <div className="space-y-4">
-                  {section.content.experiences.map((exp: any, index: number) => (
+                  {(section.content.experiences || []).map((exp: any, index: number) => (
                     <div key={exp.id} className="border border-gray-200 rounded-lg p-4">
                       <div className="grid grid-cols-2 gap-4 mb-4">
                         <input
@@ -589,7 +589,7 @@ export default function ResumeBuilder() {
               {section.type === 'skills' && (
                 <div>
                   <div className="flex flex-wrap gap-2 mb-4">
-                    {section.content.skills.map((skill: string, index: number) => (
+                    {(section.content.skills || []).map((skill: string, index: number) => (
                       <span
                         key={index}
                         className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center"
@@ -660,7 +660,7 @@ export default function ResumeBuilder() {
 
                     {section.type === 'experience' && (
                       <div className="space-y-4">
-                        {section.content.experiences.map((exp: any) => (
+                        {(section.content.experiences || []).map((exp: any) => (
                           <div key={exp.id}>
                             <div className="flex justify-between items-start mb-1">
                               <h3 className="font-semibold text-gray-900">{exp.position}</h3>
@@ -681,7 +681,7 @@ export default function ResumeBuilder() {
 
                     {section.type === 'skills' && (
                       <div className="flex flex-wrap gap-2">
-                        {section.content.skills.map((skill: string, index: number) => (
+                        {(section.content.skills || []).map((skill: string, index: number) => (
                           <span
                             key={index}
                             className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-sm"
