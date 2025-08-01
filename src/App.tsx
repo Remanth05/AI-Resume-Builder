@@ -28,11 +28,11 @@ function App() {
           }
         />
         
-        {/* Protected routes - redirect to home if signed out */}
+        {/* Protected routes - only accessible when signed in */}
         <Route
           path="/dashboard"
           element={
-            <AuthSignedIn>
+            <AuthSignedIn fallback={<Navigate to="/" replace />}>
               <Dashboard />
             </AuthSignedIn>
           }
@@ -40,7 +40,7 @@ function App() {
         <Route
           path="/resume/:id?"
           element={
-            <AuthSignedIn>
+            <AuthSignedIn fallback={<Navigate to="/" replace />}>
               <ResumeBuilder />
             </AuthSignedIn>
           }
@@ -48,16 +48,11 @@ function App() {
         <Route
           path="/profile"
           element={
-            <AuthSignedIn>
+            <AuthSignedIn fallback={<Navigate to="/" replace />}>
               <Profile />
             </AuthSignedIn>
           }
         />
-
-        {/* Fallback routes for signed out users */}
-        <Route path="/dashboard" element={<Navigate to="/" replace />} />
-        <Route path="/resume/*" element={<Navigate to="/" replace />} />
-        <Route path="/profile" element={<Navigate to="/" replace />} />
         
         {/* Redirect any other routes */}
         <Route path="*" element={<Navigate to="/" replace />} />
