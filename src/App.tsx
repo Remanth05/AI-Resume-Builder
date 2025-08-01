@@ -5,26 +5,13 @@ import ResumeBuilder from './pages/ResumeBuilder'
 import Profile from './pages/Profile'
 import SignIn from './pages/SignIn'
 import Navbar from './components/Navbar'
-import SignOutHandler from './components/SignOutHandler'
 import { AuthSignedIn, AuthSignedOut } from './components/AuthWrappers'
 
 function App() {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Handle sign-out redirects */}
-      <SignOutHandler />
-
-      {/* Show navbar for signed-in users */}
-      <AuthSignedIn>
-        <Navbar />
-      </AuthSignedIn>
-
-      {/* Show simple navbar for signed-out users only on landing page */}
-      <AuthSignedOut>
-        <Routes>
-          <Route path="/" element={<Navbar />} />
-        </Routes>
-      </AuthSignedOut>
+      {/* Always show navbar - it will handle signed in/out states internally */}
+      <Navbar />
       
       <Routes>
         {/* Landing page - main entry point for all users */}
