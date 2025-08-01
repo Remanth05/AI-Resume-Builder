@@ -28,6 +28,13 @@ export function AuthSignInButton({ children, mode = 'modal' }: { children: React
   if (isUsingDemo) {
     const { signIn } = useDemoAuth()
 
+    // If children is a button, clone it with onClick handler
+    if (React.isValidElement(children) && children.type === 'button') {
+      return React.cloneElement(children as React.ReactElement<any>, {
+        onClick: signIn
+      })
+    }
+
     return (
       <button onClick={signIn} className="inline-flex items-center">
         {children}
