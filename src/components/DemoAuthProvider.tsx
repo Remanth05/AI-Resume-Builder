@@ -31,6 +31,7 @@ const demoUser: User = {
 export function DemoAuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = React.useState<User | null>(demoUser)
   const [isSignedIn, setIsSignedIn] = React.useState(true)
+  const navigate = useNavigate()
 
   const signIn = () => {
     setUser(demoUser)
@@ -40,8 +41,8 @@ export function DemoAuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = () => {
     setUser(null)
     setIsSignedIn(false)
-    // Redirect to landing page instead of sign-in
-    window.location.href = '/'
+    // Navigate to landing page using React Router
+    navigate('/', { replace: true })
   }
 
   return (
