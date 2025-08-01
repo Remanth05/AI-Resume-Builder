@@ -3,19 +3,19 @@ import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
 import { resumeAPI, showToast } from '../utils/api'
 import { downloadAsPDF } from '../utils/pdfGenerator'
 import { geminiAI } from '../utils/geminiAI'
-import { 
-  Save, 
-  Download, 
-  Share2, 
-  Eye, 
-  EyeOff, 
+import {
+  Save,
+  Download,
+  Share2,
+  Eye,
+  EyeOff,
   Sparkles,
   Plus,
   Trash2,
   ChevronDown,
   ChevronUp,
   ArrowLeft,
-  Template,
+  Layout,
   X,
   Users,
   BarChart3,
