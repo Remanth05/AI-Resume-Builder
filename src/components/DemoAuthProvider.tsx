@@ -38,10 +38,8 @@ export function DemoAuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signOut = () => {
-    console.log('Sign out started')
     setUser(null)
     setIsSignedIn(false)
-    console.log('Sign out completed - state updated')
   }
 
   return (
