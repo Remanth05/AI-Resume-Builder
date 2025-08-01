@@ -1,4 +1,4 @@
-import { SignedIn, SignedOut, SignInButton } from '@clerk/clerk-react'
+import { AuthSignedIn, AuthSignedOut, AuthSignInButton } from '../components/AuthWrappers'
 import { Link } from 'react-router-dom'
 import { 
   Sparkles, 
@@ -28,20 +28,20 @@ export default function LandingPage() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <SignedOut>
-                <SignInButton mode="modal">
+              <AuthSignedOut>
+                <AuthSignInButton mode="modal">
                   <button className="btn-primary text-lg px-8 py-4">
                     Get Started Free
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </button>
-                </SignInButton>
-              </SignedOut>
-              <SignedIn>
+                </AuthSignInButton>
+              </AuthSignedOut>
+              <AuthSignedIn>
                 <Link to="/dashboard" className="btn-primary text-lg px-8 py-4">
                   Go to Dashboard
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
-              </SignedIn>
+              </AuthSignedIn>
               <button className="btn-secondary text-lg px-8 py-4">
                 View Templates
               </button>
@@ -162,21 +162,21 @@ export default function LandingPage() {
           <p className="text-xl text-blue-100 mb-8">
             Join thousands of professionals who've landed their dream jobs with Resumier
           </p>
-          <SignedOut>
-            <SignInButton mode="modal">
+          <AuthSignedOut>
+            <AuthSignInButton mode="modal">
               <button className="bg-white text-blue-600 hover:bg-gray-100 font-semibold py-4 px-8 rounded-lg text-lg transition-colors">
                 Start Building Now - It's Free!
               </button>
-            </SignInButton>
-          </SignedOut>
-          <SignedIn>
-            <Link 
-              to="/dashboard" 
+            </AuthSignInButton>
+          </AuthSignedOut>
+          <AuthSignedIn>
+            <Link
+              to="/dashboard"
               className="bg-white text-blue-600 hover:bg-gray-100 font-semibold py-4 px-8 rounded-lg text-lg transition-colors inline-block"
             >
               Go to Your Dashboard
             </Link>
-          </SignedIn>
+          </AuthSignedIn>
         </div>
       </section>
     </div>

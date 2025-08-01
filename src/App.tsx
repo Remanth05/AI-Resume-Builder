@@ -4,23 +4,7 @@ import Dashboard from './pages/Dashboard'
 import ResumeBuilder from './pages/ResumeBuilder'
 import Profile from './pages/Profile'
 import Navbar from './components/Navbar'
-
-// Check if we're using demo mode
-const isUsingDemo = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY === 'pk_test_demo_key_for_development_bypass'
-
-// Conditionally import auth components
-let AuthSignedIn: React.ComponentType<{ children: React.ReactNode }>
-let AuthSignedOut: React.ComponentType<{ children: React.ReactNode }>
-
-if (isUsingDemo) {
-  const { DemoSignedIn, DemoSignedOut } = await import('./components/DemoAuthProvider')
-  AuthSignedIn = DemoSignedIn
-  AuthSignedOut = DemoSignedOut
-} else {
-  const { SignedIn, SignedOut } = await import('@clerk/clerk-react')
-  AuthSignedIn = SignedIn
-  AuthSignedOut = SignedOut
-}
+import { AuthSignedIn } from './components/AuthWrappers'
 
 function App() {
   return (

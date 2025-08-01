@@ -1,17 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
-import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react'
-import { DemoSignedIn, DemoSignedOut, DemoSignInButton, DemoUserButton } from './DemoAuthProvider'
+import { AuthSignedIn, AuthSignedOut, AuthSignInButton, AuthUserButton } from './AuthWrappers'
 import { FileText, Menu, X } from 'lucide-react'
 import { useState } from 'react'
-
-// Check if we're using demo mode
-const isUsingDemo = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY === 'pk_test_demo_key_for_development_bypass'
-
-// Choose the appropriate components based on the mode
-const AuthSignedIn = isUsingDemo ? DemoSignedIn : SignedIn
-const AuthSignedOut = isUsingDemo ? DemoSignedOut : SignedOut
-const AuthSignInButton = isUsingDemo ? DemoSignInButton : SignInButton
-const AuthUserButton = isUsingDemo ? DemoUserButton : UserButton
 
 export default function Navbar() {
   const location = useLocation()
@@ -94,7 +84,7 @@ export default function Navbar() {
                   Create Resume
                 </Link>
                 <div className="pt-2">
-                  {isUsingDemo ? <AuthUserButton /> : <AuthUserButton afterSignOutUrl="/" />}
+                  <AuthUserButton afterSignOutUrl="/" />
                 </div>
               </AuthSignedIn>
               <AuthSignedOut>
