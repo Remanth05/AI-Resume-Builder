@@ -13,7 +13,6 @@ interface User {
 interface DemoAuthContextType {
   user: User | null
   isSignedIn: boolean
-  isLoading: boolean
   signIn: () => void
   signOut: () => void
 }
@@ -32,8 +31,6 @@ const demoUser: User = {
 export function DemoAuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = React.useState<User | null>(demoUser)
   const [isSignedIn, setIsSignedIn] = React.useState(true)
-  const [isLoading, setIsLoading] = React.useState(false)
-  const navigate = useNavigate()
 
   const signIn = () => {
     setUser(demoUser)
@@ -42,20 +39,13 @@ export function DemoAuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = () => {
     console.log('Sign out started')
-    setIsLoading(true)
     setUser(null)
     setIsSignedIn(false)
-    console.log('State updated, navigating to home')
-    // Small delay to ensure state updates are processed
-    setTimeout(() => {
-      navigate('/', { replace: true })
-      setIsLoading(false)
-      console.log('Navigation completed')
-    }, 50)
+    console.log('Sign out completed - state updated')
   }
 
   return (
-    <DemoAuthContext.Provider value={{ user, isSignedIn, isLoading, signIn, signOut }}>
+    <DemoAuthContext.Provider value={{ user, isSignedIn, signIn, signOut }}>
       {children}
     </DemoAuthContext.Provider>
   )
