@@ -28,7 +28,7 @@ function App() {
           }
         />
         
-        {/* Protected routes - only accessible when signed in */}
+        {/* Protected routes - redirect to home if signed out */}
         <Route
           path="/dashboard"
           element={
@@ -53,6 +53,11 @@ function App() {
             </AuthSignedIn>
           }
         />
+
+        {/* Fallback routes for signed out users */}
+        <Route path="/dashboard" element={<Navigate to="/" replace />} />
+        <Route path="/resume/*" element={<Navigate to="/" replace />} />
+        <Route path="/profile" element={<Navigate to="/" replace />} />
         
         {/* Redirect any other routes */}
         <Route path="*" element={<Navigate to="/" replace />} />
