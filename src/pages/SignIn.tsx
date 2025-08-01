@@ -1,5 +1,5 @@
 import { AuthSignInButton } from '../components/AuthWrappers'
-import { Sparkles, FileText, Users, Zap, Download, Share2 } from 'lucide-react'
+import { Sparkles, FileText, Users, Download, Share2 } from 'lucide-react'
 
 export default function SignIn() {
   return (
