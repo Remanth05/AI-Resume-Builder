@@ -29,12 +29,12 @@ export default function LandingPage() {
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <AuthSignedOut>
-                <AuthSignInButton mode="modal">
+                <Link to="/sign-in">
                   <button className="btn-primary text-lg px-8 py-4">
                     Get Started Free
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </button>
-                </AuthSignInButton>
+                </Link>
               </AuthSignedOut>
               <AuthSignedIn>
                 <Link to="/dashboard" className="btn-primary text-lg px-8 py-4">
@@ -163,11 +163,11 @@ export default function LandingPage() {
             Join thousands of professionals who've landed their dream jobs with Resumier
           </p>
           <AuthSignedOut>
-            <AuthSignInButton mode="modal">
+            <Link to="/sign-in">
               <button className="bg-white text-blue-600 hover:bg-gray-100 font-semibold py-4 px-8 rounded-lg text-lg transition-colors">
                 Start Building Now - It's Free!
               </button>
-            </AuthSignInButton>
+            </Link>
           </AuthSignedOut>
           <AuthSignedIn>
             <Link
