@@ -1,7 +1,17 @@
 import { Link, useLocation } from 'react-router-dom'
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react'
+import { DemoSignedIn, DemoSignedOut, DemoSignInButton, DemoUserButton } from './DemoAuthProvider'
 import { FileText, Menu, X } from 'lucide-react'
 import { useState } from 'react'
+
+// Check if we're using demo mode
+const isUsingDemo = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY === 'pk_test_demo_key_for_development_bypass'
+
+// Choose the appropriate components based on the mode
+const AuthSignedIn = isUsingDemo ? DemoSignedIn : SignedIn
+const AuthSignedOut = isUsingDemo ? DemoSignedOut : SignedOut
+const AuthSignInButton = isUsingDemo ? DemoSignInButton : SignInButton
+const AuthUserButton = isUsingDemo ? DemoUserButton : UserButton
 
 export default function Navbar() {
   const location = useLocation()
@@ -21,7 +31,7 @@ export default function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <SignedIn>
+            <AuthSignedIn>
               <Link
                 to="/dashboard"
                 className={`text-sm font-medium transition-colors ${
@@ -42,15 +52,15 @@ export default function Navbar() {
               >
                 Create Resume
               </Link>
-              <UserButton afterSignOutUrl="/" />
-            </SignedIn>
-            <SignedOut>
-              <SignInButton mode="modal">
+              {isUsingDemo ? <AuthUserButton /> : <AuthUserButton afterSignOutUrl="/" />}
+            </AuthSignedIn>
+            <AuthSignedOut>
+              <AuthSignInButton mode="modal">
                 <button className="btn-primary">
                   Sign In
                 </button>
-              </SignInButton>
-            </SignedOut>
+              </AuthSignInButton>
+            </AuthSignedOut>
           </div>
 
           {/* Mobile menu button */}
@@ -68,7 +78,7 @@ export default function Navbar() {
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-gray-200">
             <div className="flex flex-col space-y-4">
-              <SignedIn>
+              <AuthSignedIn>
                 <Link
                   to="/dashboard"
                   className="text-sm font-medium text-gray-700 hover:text-blue-600"
@@ -84,16 +94,16 @@ export default function Navbar() {
                   Create Resume
                 </Link>
                 <div className="pt-2">
-                  <UserButton afterSignOutUrl="/" />
+                  {isUsingDemo ? <AuthUserButton /> : <AuthUserButton afterSignOutUrl="/" />}
                 </div>
-              </SignedIn>
-              <SignedOut>
-                <SignInButton mode="modal">
+              </AuthSignedIn>
+              <AuthSignedOut>
+                <AuthSignInButton mode="modal">
                   <button className="btn-primary w-full">
                     Sign In
                   </button>
-                </SignInButton>
-              </SignedOut>
+                </AuthSignInButton>
+              </AuthSignedOut>
             </div>
           </div>
         )}
