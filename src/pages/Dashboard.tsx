@@ -1,15 +1,17 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuthUser } from '../components/AuthWrappers'
-import { 
-  Plus, 
-  FileText, 
-  Calendar, 
-  Download, 
-  Share2, 
+import { resumeAPI, userAPI, showToast } from '../utils/api'
+import {
+  Plus,
+  FileText,
+  Calendar,
+  Download,
+  Share2,
   Edit3,
   Trash2,
-  Eye
+  Eye,
+  MoreVertical
 } from 'lucide-react'
 
 interface Resume {
@@ -19,40 +21,122 @@ interface Resume {
   updatedAt: string
   createdAt: string
   isPublic: boolean
+  views?: number
+  downloads?: number
+}
+
+interface UserStats {
+  totalResumes: number
+  totalDownloads: number
+  totalShares: number
+  totalViews: number
 }
 
 export default function Dashboard() {
   const { user } = useAuthUser()
   const [resumes, setResumes] = useState<Resume[]>([])
+  const [stats, setStats] = useState<UserStats>({ totalResumes: 0, totalDownloads: 0, totalShares: 0, totalViews: 0 })
   const [loading, setLoading] = useState(true)
+  const [actionLoading, setActionLoading] = useState<{ [key: string]: boolean }>({})
 
   useEffect(() => {
-    // TODO: Fetch user's resumes from API
-    // For now, using mock data
-    const mockResumes: Resume[] = [
-      {
-        id: '1',
-        title: 'Software Engineer Resume',
-        jobTitle: 'Frontend Developer',
-        updatedAt: '2024-01-15',
-        createdAt: '2024-01-10',
-        isPublic: false
-      },
-      {
-        id: '2',
-        title: 'Product Manager Resume',
-        jobTitle: 'Senior Product Manager',
-        updatedAt: '2024-01-12',
-        createdAt: '2024-01-08',
-        isPublic: true
-      }
-    ]
-    
-    setTimeout(() => {
-      setResumes(mockResumes)
-      setLoading(false)
-    }, 1000)
+    loadDashboardData()
   }, [])
+
+  const loadDashboardData = async () => {
+    try {
+      setLoading(true)
+      const [resumesResponse, statsResponse] = await Promise.all([
+        resumeAPI.getResumes(),
+        userAPI.getStats()
+      ])
+
+      setResumes(resumesResponse.data)
+      setStats(statsResponse.data)
+    } catch (error) {
+      console.error('Failed to load dashboard data:', error)
+      showToast('Failed to load dashboard data', 'error')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleDeleteResume = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this resume? This action cannot be undone.')) {
+      return
+    }
+
+    try {
+      setActionLoading(prev => ({ ...prev, [`delete-${id}`]: true }))
+      await resumeAPI.deleteResume(id)
+      setResumes(prev => prev.filter(r => r.id !== id))
+      showToast('Resume deleted successfully', 'success')
+
+      // Refresh stats
+      const statsResponse = await userAPI.getStats()
+      setStats(statsResponse.data)
+    } catch (error) {
+      console.error('Failed to delete resume:', error)
+      showToast('Failed to delete resume', 'error')
+    } finally {
+      setActionLoading(prev => ({ ...prev, [`delete-${id}`]: false }))
+    }
+  }
+
+  const handleDownloadResume = async (id: string) => {
+    try {
+      setActionLoading(prev => ({ ...prev, [`download-${id}`]: true }))
+      await resumeAPI.downloadResume(id)
+      showToast('Resume downloaded successfully', 'success')
+
+      // Update download count in local state
+      setResumes(prev => prev.map(r =>
+        r.id === id ? { ...r, downloads: (r.downloads || 0) + 1 } : r
+      ))
+    } catch (error) {
+      console.error('Failed to download resume:', error)
+      showToast('Failed to download resume', 'error')
+    } finally {
+      setActionLoading(prev => ({ ...prev, [`download-${id}`]: false }))
+    }
+  }
+
+  const handleShareResume = async (id: string) => {
+    try {
+      setActionLoading(prev => ({ ...prev, [`share-${id}`]: true }))
+      const response = await resumeAPI.shareResume(id)
+      showToast('Share link copied to clipboard!', 'success')
+
+      // Update public status in local state
+      setResumes(prev => prev.map(r =>
+        r.id === id ? { ...r, isPublic: true } : r
+      ))
+    } catch (error) {
+      console.error('Failed to share resume:', error)
+      showToast('Failed to share resume', 'error')
+    } finally {
+      setActionLoading(prev => ({ ...prev, [`share-${id}`]: false }))
+    }
+  }
+
+  const handleCreateNewResume = async () => {
+    try {
+      setActionLoading(prev => ({ ...prev, 'create-new': true }))
+      const response = await resumeAPI.createResume({
+        title: 'New Resume',
+        jobTitle: 'Enter your job title'
+      })
+
+      showToast('New resume created!', 'success')
+      // Navigate to the new resume
+      window.location.href = `/resume/${response.data.id}`
+    } catch (error) {
+      console.error('Failed to create resume:', error)
+      showToast('Failed to create resume', 'error')
+    } finally {
+      setActionLoading(prev => ({ ...prev, 'create-new': false }))
+    }
+  }
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
