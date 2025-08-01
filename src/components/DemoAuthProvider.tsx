@@ -81,10 +81,25 @@ export function DemoUserButton() {
   const { user, signOut } = useDemoAuth()
   const [showDropdown, setShowDropdown] = useState(false)
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element
+      if (!target.closest('.demo-user-button')) {
+        setShowDropdown(false)
+      }
+    }
+
+    if (showDropdown) {
+      document.addEventListener('click', handleClickOutside)
+      return () => document.removeEventListener('click', handleClickOutside)
+    }
+  }, [showDropdown])
+
   if (!user) return null
   
   return (
-    <div className="relative">
+    <div className="relative demo-user-button">
       <button
         className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100"
         onClick={() => setShowDropdown(!showDropdown)}
