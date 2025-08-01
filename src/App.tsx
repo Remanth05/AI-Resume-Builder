@@ -57,8 +57,9 @@ function App() {
         {/* Redirect any other routes */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-      
 
+      {/* Debug component - remove in production */}
+      <AuthDebug />
     </div>
   )
 }
