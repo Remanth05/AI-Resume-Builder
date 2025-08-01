@@ -28,12 +28,17 @@ Generate only the summary text, no additional formatting or labels.
 `
 
     try {
+      // Check if properly configured before making API call
+      if (!this.isConfigured()) {
+        throw new Error('API key not configured')
+      }
+
       const result = await this.model.generateContent(prompt)
       const response = await result.response
       return response.text().trim()
     } catch (error) {
       console.error('Gemini AI Error:', error)
-      // Fallback content
+      // Always return fallback content
       return `Experienced ${jobTitle} with a proven track record of delivering high-quality results. Skilled in modern technologies and best practices, with strong problem-solving abilities and a passion for continuous learning. Dedicated to creating innovative solutions that drive business growth and enhance user experiences.`
     }
   }
@@ -58,14 +63,19 @@ Format as bullet points with "•" symbol. Generate only the bullet points, no a
 `
 
     try {
+      // Check if properly configured before making API call
+      if (!this.isConfigured()) {
+        throw new Error('API key not configured')
+      }
+
       const result = await this.model.generateContent(prompt)
       const response = await result.response
       return response.text().trim()
     } catch (error) {
       console.error('Gemini AI Error:', error)
-      // Fallback content
+      // Always return fallback content
       return `• Developed and maintained scalable applications serving thousands of users daily
-�� Collaborated with cross-functional teams to deliver projects on time and within budget
+• Collaborated with cross-functional teams to deliver projects on time and within budget
 • Implemented best practices and modern development methodologies
 • Optimized application performance, improving load times and user experience
 • Mentored junior team members and contributed to code reviews`
@@ -87,13 +97,18 @@ Format as a simple comma-separated list. Generate only the skills, no additional
 `
 
     try {
+      // Check if properly configured before making API call
+      if (!this.isConfigured()) {
+        throw new Error('API key not configured')
+      }
+
       const result = await this.model.generateContent(prompt)
       const response = await result.response
       const skillsText = response.text().trim()
       return skillsText.split(',').map(skill => skill.trim()).filter(skill => skill.length > 0)
     } catch (error) {
       console.error('Gemini AI Error:', error)
-      // Fallback skills based on job title
+      // Always return fallback skills
       const fallbackSkills = this.getFallbackSkills(jobTitle)
       return fallbackSkills
     }
@@ -143,7 +158,7 @@ Generate only the improved content, no additional text or explanations.
 
   // Check if API key is properly configured
   isConfigured(): boolean {
-    return API_KEY !== 'demo-key' && API_KEY.length > 0
+    return API_KEY !== 'demo-key' && API_KEY.length > 0 && API_KEY.startsWith('AIza')
   }
 
   // Get demo content if AI is not configured

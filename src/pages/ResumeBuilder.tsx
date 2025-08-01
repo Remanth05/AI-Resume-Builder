@@ -44,10 +44,28 @@ export default function ResumeBuilder() {
   const [isDownloading, setIsDownloading] = useState(false)
 
   useEffect(() => {
-    // TODO: Load resume data from API if id exists, otherwise create new
-    const mockResumeData: ResumeData = {
-      id: id || 'new',
-      title: id ? 'My Resume' : 'New Resume',
+    const loadResumeData = async () => {
+      if (id && id !== 'new') {
+        try {
+          // Try to load existing resume
+          const response = await resumeAPI.getResume(id)
+          setResumeData(response.data)
+        } catch (error) {
+          console.error('Failed to load resume:', error)
+          // If loading fails, create new resume structure
+          createNewResumeData()
+        }
+      } else {
+        // Create new resume
+        createNewResumeData()
+      }
+      setLoading(false)
+    }
+
+    const createNewResumeData = () => {
+      const mockResumeData: ResumeData = {
+        id: 'new',
+        title: 'New Resume',
       sections: [
         {
           id: '1',
@@ -107,10 +125,10 @@ export default function ResumeBuilder() {
       ]
     }
 
-    setTimeout(() => {
       setResumeData(mockResumeData)
-      setLoading(false)
-    }, 500)
+    }
+
+    loadResumeData()
   }, [id])
 
   // Auto-save effect
@@ -131,10 +149,14 @@ export default function ResumeBuilder() {
     try {
       setIsSaving(true)
 
-      if (id && id !== 'new') {
-        await resumeAPI.updateResume(id, resumeData)
+      // Check if this is an existing resume with a valid ID
+      if (id && id !== 'new' && resumeData.id && resumeData.id !== 'new') {
+        await resumeAPI.updateResume(resumeData.id, resumeData)
       } else {
+        // Create new resume
         const response = await resumeAPI.createResume(resumeData)
+        // Update the resume data with the new ID
+        setResumeData(prev => prev ? { ...prev, id: response.data.id } : null)
         // Update URL to reflect the new resume ID
         window.history.replaceState(null, '', `/resume/${response.data.id}`)
       }
