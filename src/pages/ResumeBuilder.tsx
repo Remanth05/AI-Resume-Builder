@@ -105,7 +105,7 @@ export default function ResumeBuilder() {
                 location: 'San Francisco, CA',
                 startDate: '2022-01',
                 endDate: 'Present',
-                description: '• Led development of React-based dashboard increasing user engagement by 40%\n• Mentored junior developers and established coding standards\n• Collaborated with design team to implement responsive UI components'
+                description: '• Led development of React-based dashboard increasing user engagement by 40%\n• Mentored junior developers and established coding standards\n�� Collaborated with design team to implement responsive UI components'
               }
             ]
           },
@@ -292,24 +292,29 @@ export default function ResumeBuilder() {
       const personalSection = resumeData?.sections.find(s => s.type === 'personal')
       const jobTitle = userInput || personalSection?.content.jobTitle || 'Software Engineer'
 
-      if (geminiAI.isConfigured()) {
-        // Use actual Gemini AI
-        switch (sectionType) {
-          case 'summary':
-            generatedContent = await geminiAI.generateSummary(jobTitle)
-            break
-          case 'experience':
-            generatedContent = await geminiAI.generateExperienceDescription(jobTitle)
-            break
-          case 'skills':
-            const skills = await geminiAI.generateSkills(jobTitle)
-            // For skills, we need to add them to the section differently
-            return skills
-          default:
-            generatedContent = `AI-generated content for ${sectionType} based on: ${jobTitle}`
+      // Always try to use Gemini AI first, but fall back to demo content on any error
+      try {
+        if (geminiAI.isConfigured()) {
+          // Use actual Gemini AI
+          switch (sectionType) {
+            case 'summary':
+              generatedContent = await geminiAI.generateSummary(jobTitle)
+              break
+            case 'experience':
+              generatedContent = await geminiAI.generateExperienceDescription(jobTitle)
+              break
+            case 'skills':
+              const skills = await geminiAI.generateSkills(jobTitle)
+              return skills
+            default:
+              generatedContent = `AI-generated content for ${sectionType} based on: ${jobTitle}`
+          }
+        } else {
+          throw new Error('AI not configured, using demo content')
         }
-      } else {
-        // Use demo content
+      } catch (aiError) {
+        console.log('Using demo content due to AI error:', aiError)
+        // Use demo content as fallback
         generatedContent = geminiAI.getDemoContent(sectionType as any, jobTitle)
         if (sectionType === 'skills') {
           return generatedContent
