@@ -8,7 +8,8 @@ const isUsingDemo = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY === 'pk_test_demo
 // Conditional auth components
 export function AuthSignedIn({ children }: { children: React.ReactNode }) {
   if (isUsingDemo) {
-    const { isSignedIn } = useDemoAuth()
+    const { isSignedIn, isLoading } = useDemoAuth()
+    if (isLoading) return null // Don't render during loading
     return isSignedIn ? <>{children}</> : null
   } else {
     return <SignedIn>{children}</SignedIn>
@@ -17,7 +18,8 @@ export function AuthSignedIn({ children }: { children: React.ReactNode }) {
 
 export function AuthSignedOut({ children }: { children: React.ReactNode }) {
   if (isUsingDemo) {
-    const { isSignedIn } = useDemoAuth()
+    const { isSignedIn, isLoading } = useDemoAuth()
+    if (isLoading) return null // Don't render during loading
     return !isSignedIn ? <>{children}</> : null
   } else {
     return <SignedOut>{children}</SignedOut>
