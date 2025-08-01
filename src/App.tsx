@@ -5,6 +5,7 @@ import ResumeBuilder from './pages/ResumeBuilder'
 import Profile from './pages/Profile'
 import SignIn from './pages/SignIn'
 import Navbar from './components/Navbar'
+import AuthDebug from './components/AuthDebug'
 import { AuthSignedIn, AuthSignedOut } from './components/AuthWrappers'
 
 function App() {
