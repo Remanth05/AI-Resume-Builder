@@ -545,7 +545,7 @@ export default function ResumeBuilder() {
                 onClick={() => setShowTemplates(true)}
                 className="btn-secondary bg-gradient-to-r from-purple-500 to-blue-500 text-white hover:from-purple-600 hover:to-blue-600"
               >
-                <Template className="h-5 w-5 mr-2" />
+                <Layout className="h-5 w-5 mr-2" />
                 View Templates
               </button>
               <button
