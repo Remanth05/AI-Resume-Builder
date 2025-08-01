@@ -5,11 +5,15 @@ import ResumeBuilder from './pages/ResumeBuilder'
 import Profile from './pages/Profile'
 import SignIn from './pages/SignIn'
 import Navbar from './components/Navbar'
+import SignOutHandler from './components/SignOutHandler'
 import { AuthSignedIn, AuthSignedOut } from './components/AuthWrappers'
 
 function App() {
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Handle sign-out redirects */}
+      <SignOutHandler />
+
       {/* Show navbar for signed-in users */}
       <AuthSignedIn>
         <Navbar />
@@ -66,14 +70,7 @@ function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       
-      {/* Redirect signed-out users from protected routes */}
-      <AuthSignedOut>
-        <Routes>
-          <Route path="/dashboard" element={<Navigate to="/" replace />} />
-          <Route path="/resume/*" element={<Navigate to="/" replace />} />
-          <Route path="/profile" element={<Navigate to="/" replace />} />
-        </Routes>
-      </AuthSignedOut>
+
     </div>
   )
 }
