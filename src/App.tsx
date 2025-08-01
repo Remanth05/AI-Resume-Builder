@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { SignedIn, SignedOut } from '@clerk/clerk-react'
 import LandingPage from './pages/LandingPage'
 import Dashboard from './pages/Dashboard'
@@ -36,6 +36,8 @@ function App() {
             </SignedIn>
           }
         />
+        {/* Redirect any other routes to home */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>
   )
