@@ -3,15 +3,31 @@ import LandingPage from './pages/LandingPage'
 import Dashboard from './pages/Dashboard'
 import ResumeBuilder from './pages/ResumeBuilder'
 import Profile from './pages/Profile'
+import SignIn from './pages/SignIn'
 import Navbar from './components/Navbar'
-import { AuthSignedIn } from './components/AuthWrappers'
+import { AuthSignedIn, AuthSignedOut } from './components/AuthWrappers'
 
 function App() {
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
+      <AuthSignedIn>
+        <Navbar />
+      </AuthSignedIn>
+      
       <Routes>
         <Route path="/" element={<LandingPage />} />
+        
+        {/* SignIn route - only show when signed out */}
+        <Route
+          path="/sign-in"
+          element={
+            <AuthSignedOut>
+              <SignIn />
+            </AuthSignedOut>
+          }
+        />
+        
+        {/* Protected routes - only accessible when signed in */}
         <Route
           path="/dashboard"
           element={
@@ -36,9 +52,19 @@ function App() {
             </AuthSignedIn>
           }
         />
-        {/* Redirect any other routes to home */}
+        
+        {/* Redirect any other routes */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      
+      {/* Show SignIn page when signed out and not on landing page */}
+      <AuthSignedOut>
+        <Routes>
+          <Route path="/dashboard" element={<Navigate to="/sign-in" replace />} />
+          <Route path="/resume/*" element={<Navigate to="/sign-in" replace />} />
+          <Route path="/profile" element={<Navigate to="/sign-in" replace />} />
+        </Routes>
+      </AuthSignedOut>
     </div>
   )
 }
