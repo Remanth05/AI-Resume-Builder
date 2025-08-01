@@ -238,7 +238,7 @@ export default function ResumeBuilder() {
 
     setResumeData({
       ...resumeData,
-      sections: resumeData.sections.map(section =>
+      sections: (resumeData.sections || []).map(section =>
         section.id === sectionId
           ? { ...section, content: { ...section.content, [field]: value } }
           : section
@@ -253,7 +253,7 @@ export default function ResumeBuilder() {
 
     setResumeData({
       ...resumeData,
-      sections: resumeData.sections.map(section =>
+      sections: (resumeData.sections || []).map(section =>
         section.id === sectionId
           ? {
               ...section,
@@ -276,7 +276,7 @@ export default function ResumeBuilder() {
 
     setResumeData({
       ...resumeData,
-      sections: resumeData.sections.map(section =>
+      sections: (resumeData.sections || []).map(section =>
         section.id === sectionId
           ? {
               ...section,
@@ -297,7 +297,7 @@ export default function ResumeBuilder() {
 
     setResumeData({
       ...resumeData,
-      sections: resumeData.sections.map(section =>
+      sections: (resumeData.sections || []).map(section =>
         section.id === sectionId
           ? {
               ...section,
@@ -674,7 +674,7 @@ export default function ResumeBuilder() {
                 </div>
               </div>
 
-              {resumeData.sections
+              {(resumeData.sections || [])
                 .filter(section => section.isVisible && section.type !== 'personal')
                 .map((section) => (
                   <div key={section.id} className="mb-6">
