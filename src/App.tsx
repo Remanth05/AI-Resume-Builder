@@ -1,10 +1,18 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { SignedIn, SignedOut } from '@clerk/clerk-react'
+import { DemoSignedIn, DemoSignedOut } from './components/DemoAuthProvider'
 import LandingPage from './pages/LandingPage'
 import Dashboard from './pages/Dashboard'
 import ResumeBuilder from './pages/ResumeBuilder'
 import Profile from './pages/Profile'
 import Navbar from './components/Navbar'
+
+// Check if we're using demo mode
+const isUsingDemo = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY === 'pk_test_demo_key_for_development_bypass'
+
+// Choose the appropriate components based on the mode
+const AuthSignedIn = isUsingDemo ? DemoSignedIn : SignedIn
+const AuthSignedOut = isUsingDemo ? DemoSignedOut : SignedOut
 
 function App() {
   return (
@@ -15,25 +23,25 @@ function App() {
         <Route
           path="/dashboard"
           element={
-            <SignedIn>
+            <AuthSignedIn>
               <Dashboard />
-            </SignedIn>
+            </AuthSignedIn>
           }
         />
         <Route
           path="/resume/:id?"
           element={
-            <SignedIn>
+            <AuthSignedIn>
               <ResumeBuilder />
-            </SignedIn>
+            </AuthSignedIn>
           }
         />
         <Route
           path="/profile"
           element={
-            <SignedIn>
+            <AuthSignedIn>
               <Profile />
-            </SignedIn>
+            </AuthSignedIn>
           }
         />
         {/* Redirect any other routes to home */}
