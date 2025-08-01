@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
 import { resumeAPI, showToast } from '../utils/api'
-import { downloadResumeAsPDF } from '../utils/pdfGenerator'
+import { downloadAsPDF } from '../utils/pdfGenerator'
+import { geminiAI } from '../utils/geminiAI'
 import { 
   Save, 
   Download, 
@@ -158,31 +159,18 @@ export default function ResumeBuilder() {
 
     try {
       setIsDownloading(true)
+      showToast('Generating PDF...', 'info')
 
-      // First check if preview is shown, if not, temporarily show it
-      const wasPreviewShown = showPreview
-      if (!showPreview) {
-        setShowPreview(true)
-        // Wait a moment for the preview to render
-        await new Promise(resolve => setTimeout(resolve, 500))
+      // Convert resume data to the expected format
+      const resumeForPDF = {
+        ...resumeData,
+        sections: resumeData.sections
       }
 
-      // Find the preview element
-      const previewElement = document.querySelector('.resume-preview') as HTMLElement
-      if (!previewElement) {
-        throw new Error('Preview not available for download')
-      }
+      // Download as PDF using the existing function
+      await downloadAsPDF(resumeForPDF as any)
 
-      // Generate filename
-      const filename = `${resumeData.title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`
-
-      // Download as PDF
-      await downloadResumeAsPDF(previewElement, filename)
-
-      // Restore preview state
-      if (!wasPreviewShown) {
-        setShowPreview(false)
-      }
+      showToast('PDF downloaded successfully!', 'success')
 
     } catch (error) {
       console.error('Failed to download resume:', error)
@@ -272,33 +260,44 @@ export default function ResumeBuilder() {
     setHasUnsavedChanges(true)
   }
 
-  const generateAIContent = async (sectionType: string, userInput: string) => {
+  const generateAIContent = async (sectionType: string, userInput: string = '') => {
     setIsGenerating(true)
-    
+
     try {
-      // TODO: Integrate with Gemini AI API
-      // Mock AI generation for now
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
       let generatedContent = ''
-      
-      switch (sectionType) {
-        case 'summary':
-          generatedContent = `Dynamic ${userInput} with proven track record of delivering high-impact solutions. Skilled in leveraging cutting-edge technologies to drive business growth and enhance user experiences. Known for collaborative leadership and innovative problem-solving approach.`
-          break
-        case 'experience':
-          generatedContent = `• Developed and maintained scalable applications serving 100,000+ users daily
-• Implemented modern development practices, reducing deployment time by 60%
-• Collaborated with cross-functional teams to deliver projects on time and within budget
-• Optimized application performance, improving load times by 45%`
-          break
-        default:
-          generatedContent = `AI-generated content for ${sectionType} based on: ${userInput}`
+
+      // Get job title from personal section or use default
+      const personalSection = resumeData?.sections.find(s => s.type === 'personal')
+      const jobTitle = userInput || personalSection?.content.jobTitle || 'Software Engineer'
+
+      if (geminiAI.isConfigured()) {
+        // Use actual Gemini AI
+        switch (sectionType) {
+          case 'summary':
+            generatedContent = await geminiAI.generateSummary(jobTitle)
+            break
+          case 'experience':
+            generatedContent = await geminiAI.generateExperienceDescription(jobTitle)
+            break
+          case 'skills':
+            const skills = await geminiAI.generateSkills(jobTitle)
+            // For skills, we need to add them to the section differently
+            return skills
+          default:
+            generatedContent = `AI-generated content for ${sectionType} based on: ${jobTitle}`
+        }
+      } else {
+        // Use demo content
+        generatedContent = geminiAI.getDemoContent(sectionType as any, jobTitle)
+        if (sectionType === 'skills') {
+          return generatedContent
+        }
       }
-      
+
       return generatedContent
     } catch (error) {
       console.error('AI generation error:', error)
+      showToast('Failed to generate content. Please try again.', 'error')
       throw error
     } finally {
       setIsGenerating(false)
@@ -376,8 +375,23 @@ export default function ResumeBuilder() {
                 <h3 className="text-lg font-semibold text-gray-900">{section.title}</h3>
                 <div className="flex items-center space-x-2">
                   <button
-                    onClick={() => generateAIContent(section.type, 'Software Engineer')}
-                    className="text-blue-600 hover:text-blue-700 p-1"
+                    onClick={async () => {
+                      try {
+                        const content = await generateAIContent(section.type)
+                        if (section.type === 'skills' && Array.isArray(content)) {
+                          // For skills, replace the entire skills array
+                          updateSectionContent(section.id, 'skills', content)
+                        } else if (typeof content === 'string') {
+                          // For other content types, update the text field
+                          const field = section.type === 'summary' ? 'text' : 'content'
+                          updateSectionContent(section.id, field, content)
+                        }
+                        showToast('AI content generated successfully!', 'success')
+                      } catch (error) {
+                        // Error is already handled in generateAIContent
+                      }
+                    }}
+                    className="text-blue-600 hover:text-blue-700 p-1 disabled:opacity-50"
                     title="Generate with AI"
                     disabled={isGenerating}
                   >
@@ -515,8 +529,18 @@ export default function ResumeBuilder() {
                       />
                       <div className="flex justify-between items-center mt-3">
                         <button
-                          onClick={() => generateAIContent('experience', exp.position)}
-                          className="text-blue-600 hover:text-blue-700 text-sm flex items-center"
+                          onClick={async () => {
+                            try {
+                              const content = await generateAIContent('experience', exp.position)
+                              if (typeof content === 'string') {
+                                updateExperienceField(section.id, index, 'description', content)
+                                showToast('AI content generated successfully!', 'success')
+                              }
+                            } catch (error) {
+                              // Error is already handled in generateAIContent
+                            }
+                          }}
+                          className="text-blue-600 hover:text-blue-700 text-sm flex items-center disabled:opacity-50"
                           disabled={isGenerating}
                         >
                           <Sparkles className="h-4 w-4 mr-1" />
