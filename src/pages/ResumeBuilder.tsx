@@ -227,6 +227,7 @@ export default function ResumeBuilder() {
           : section
       )
     })
+    setHasUnsavedChanges(true)
   }
 
   const generateAIContent = async (sectionType: string, userInput: string) => {
